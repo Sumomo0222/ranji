@@ -1,0 +1,13 @@
+/* 纸张颗粒纹理：单独成文件，url() 路径相对本文件解析，不经过打包工具 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url(textures/paper.png) repeat 0 0 / 180px;
+}
+html[data-theme="night"] body::before {
+  opacity: 0.45;
+  filter: invert(1);
+}
