@@ -1,0 +1,101 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>ocr harness</title></head>
+<body style="font:13px Menlo;background:#fff;color:#111">
+<pre id="log">loading</pre>
+<script type="module">
+  import { createWorker, OEM, PSM } from './out/tesseract.mjs';
+
+  // 与线上一致：同源、子路径、无跨域隔离头。page.html 位于 /ranji/tools/ocr/harness/，运行时文件在 /ranji/static/vendor/ocr/。
+  const BASE = new URL('../../../static/vendor/ocr/', location.href).href;
+
+  // 缩放到指定比例；深色截图会把细笔画变粗并反相成「深字浅底」，Tesseract 对这种更稳
+  async function prepare(blob, scale, prep) {
+    const bmp = await createImageBitmap(blob);
+    const width = bmp.width;
+    const height = bmp.height;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(width * scale);
+    canvas.height = Math.round(height * scale);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    bmp.close();
+    let inverted = false;
+    if (prep === 'auto') {
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = img.data;
+      let sum = 0;
+      let n = 0;
+      for (let i = 0; i < d.length; i += 4 * 37) {
+        sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        n++;
+      }
+      if (sum / n < 110) {
+        inverted = true;
+        const w = canvas.width;
+        const h = canvas.height;
+        const src = new Uint8ClampedArray(d.length);
+        for (let i = 0; i < d.length; i += 4) {
+          src[i] = 255 - d[i];
+          src[i + 1] = 255 - d[i + 1];
+          src[i + 2] = 255 - d[i + 2];
+          src[i + 3] = 255;
+        }
+        // 3×3 最小值滤波：让反相后的深色笔画加粗一圈
+        const tmp = new Uint8ClampedArray(src.length);
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const i = (y * w + x) * 4;
+            const l = x > 0 ? i - 4 : i;
+            const r = x < w - 1 ? i + 4 : i;
+            for (let c = 0; c < 3; c++) tmp[i + c] = Math.min(src[l + c], src[i + c], src[r + c]);
+          }
+        }
+        const out = img.data;
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const i = (y * w + x) * 4;
+            const u = y > 0 ? i - w * 4 : i;
+            const b = y < h - 1 ? i + w * 4 : i;
+            for (let c = 0; c < 3; c++) out[i + c] = Math.min(tmp[u + c], tmp[i + c], tmp[b + c]);
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+    }
+    const outBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    return { blob: outBlob, width, height, inverted };
+  }
+
+  window.prepare = prepare;
+
+  window.runOcr = async ({ b64, langs = 'chi_sim+eng', scale = 0.5, psm = PSM.AUTO, prep = 'auto' }) => {
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const { blob, width, height, inverted } = await prepare(new Blob([bytes], { type: 'image/png' }), scale, prep);
+    const log = [];
+    const t0 = performance.now();
+    const worker = await createWorker(langs, OEM.LSTM_ONLY, {
+      workerPath: `${BASE}worker.min.js`,
+      corePath: `${BASE}tesseract-core-simd-lstm.wasm.js`,
+      langPath: `${BASE}lang`,
+      cacheMethod: 'none',
+      gzip: true,
+      logger: (m) => log.push(`${m.status} ${m.progress.toFixed(2)}`),
+    });
+    const tLoad = performance.now() - t0;
+    await worker.setParameters({ tessedit_pageseg_mode: String(psm), preserve_interword_spaces: '1' });
+    const t1 = performance.now();
+    const { data } = await worker.recognize(blob, {}, { text: true, blocks: true, hocr: false, tsv: false });
+    const tRec = performance.now() - t1;
+    await worker.terminate();
+    const lines = (data.blocks ?? []).flatMap((b) => (b.paragraphs ?? []).flatMap((p) => (p.lines ?? []).map((l) => ({ text: l.text, confidence: l.confidence, bbox: l.bbox, words: l.words }))));
+    const words = lines.flatMap((l) => (l.words ?? []).filter((w) => w.text.trim()).map((w) => ({ text: w.text, confidence: w.confidence, bbox: w.bbox })));
+    return { scale, inverted, words, text: data.text, confidence: data.confidence, tLoad: Math.round(tLoad), tRec: Math.round(tRec) };
+  };
+
+  window.ocrReady = true;
+</script>
+</body></html>

@@ -1,0 +1,65 @@
+{
+  "apple_fitness.png": {
+    "type": "walk",
+    "minutes": 42,
+    "kcal": 486,
+    "distanceKm": 5.2,
+    "steps": 8432
+  },
+  "keep_run.png": {
+    "type": "run",
+    "minutes": 32,
+    "kcal": 386,
+    "distanceKm": 5.21,
+    "steps": null
+  },
+  "strava.png": {
+    "type": "run",
+    "minutes": 28,
+    "kcal": 386,
+    "distanceKm": 5.21,
+    "steps": null
+  },
+  "huawei.png": {
+    "type": "run",
+    "minutes": 40,
+    "kcal": 356,
+    "distanceKm": 6,
+    "steps": null
+  },
+  "wechat_steps.png": {
+    "type": "walk",
+    "minutes": null,
+    "kcal": null,
+    "distanceKm": null,
+    "steps": 8432
+  },
+  "gym.png": {
+    "type": "strength",
+    "minutes": 60,
+    "kcal": 320,
+    "distanceKm": null,
+    "steps": null
+  },
+  "decoy.png": {
+    "type": "indoor_cycle",
+    "minutes": 45,
+    "kcal": 412,
+    "distanceKm": null,
+    "steps": null
+  },
+  "swim.png": {
+    "type": "swim",
+    "minutes": 35,
+    "kcal": 420,
+    "distanceKm": 1.2,
+    "steps": null
+  },
+  "garmin.png": {
+    "type": "run",
+    "minutes": 39,
+    "kcal": 512,
+    "distanceKm": 6.42,
+    "steps": null
+  }
+}

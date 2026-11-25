@@ -1,0 +1,74 @@
+/* 纸张颗粒纹理：单独成文件，url() 路径相对本文件解析，不经过打包工具 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url(../textures/paper.png) repeat 0 0 / 180px;
+}
+html[data-theme="night"] body::before {
+  opacity: 0.45;
+  filter: invert(1);
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: inherit;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+a {
+  color: inherit;
+}
+.ic {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  vertical-align: -0.2em;
+}
+.num {
+  font-family: var(--font-num);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.01em;
+}
+.serif {
+  font-family: var(--font-serif);
+}
+.eyebrow {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.muted {
+  color: var(--ink-3);
+}

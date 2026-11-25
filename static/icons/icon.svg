@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#F3EFE6"/>
+  <rect x="86" y="86" width="340" height="340" rx="58" fill="#C8402D"/>
+         <rect x="100" y="100" width="312" height="312" rx="47" fill="none" stroke="#F3EFE6" stroke-opacity=".55" stroke-width="3"/>
+  <text x="256" y="266.72" text-anchor="middle" dominant-baseline="central" font-family='"Kaiti SC", "STKaiti", "Songti SC", serif' font-weight="900" font-size="268" fill="#F8F4EC">燃</text>
+</svg>

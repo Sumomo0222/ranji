@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>燃记 · 今日</title>
+    <meta name="description" content="燃记：个人健身与饮食管理。记录每日饮食与运动，拍照估算热量，自动生成每周健身报告。数据只保存在你的设备上。" />
+    <meta name="theme-color" content="#f3efe6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="燃记" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./icons/icon-64.png" sizes="64x64" type="image/png" />
+    <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./fonts/fonts.css" />
+    <link rel="stylesheet" href="./paper.css" />
+    <link rel="stylesheet" href="./assets/app.{{css}}.css" />
+    <script>
+      // 首屏渲染前应用主题，避免闪烁
+      try {
+        var saved = JSON.parse(localStorage.getItem("ranji.v1") || "null");
+        var theme = (saved && saved.settings && saved.settings.theme) || "paper";
+        if (theme === "night" || (theme === "auto" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.dataset.theme = "night";
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div class="app"><main id="view" class="view"></main></div>
+    <nav class="tabbar" id="tabbar" aria-label="主导航"></nav>
+    <noscript><p style="padding:24px;font-family:sans-serif">燃记需要开启 JavaScript 才能使用。</p></noscript>
+    <script type="module" src="./assets/app-{{js}}.js"></script>
+  </body>
+</html>

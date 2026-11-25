@@ -1,0 +1,18 @@
+{
+  "name": "ranji-ocr-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "On-device OCR toolchain for 燃记: synthetic workout screenshots, Tesseract.js verification harness and reference parser. Nothing here ships to the site; the shippable files live in static/vendor/ocr/.",
+  "scripts": {
+    "vendor": "node build-vendor.mjs",
+    "samples": "node make-samples.mjs",
+    "harness": "node run-harness.mjs",
+    "test": "node --test parse-reference.test.mjs"
+  },
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "playwright-core": "1.65.1",
+    "tesseract.js": "7.0.0"
+  }
+}

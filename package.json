@@ -1,0 +1,22 @@
+{
+  "name": "ranji",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "燃记 — 个人健身与饮食管理（纯静态，数据保存在浏览器本地）",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "engines": "node tools/fetch-engines.mjs",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "e2e": "node tools/e2e.mjs",
+    "deploy": "npm run build && bash tools/deploy.sh"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.65.1"
+  },
+  "dependencies": {
+    "onnxruntime-web": "1.31.1",
+    "tesseract.js": "7.0.0"
+  }
+}

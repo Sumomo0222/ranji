@@ -1,0 +1,13 @@
+{
+  "name": "ranji-clip-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline toolchain for the on-device MobileCLIP food recognizer (scratch, not shipped)",
+  "dependencies": {
+    "@huggingface/transformers": "4.3.2",
+    "onnxruntime-node": "1.30.0",
+    "onnxruntime-web": "1.31.1",
+    "playwright-core": "1.65.1"
+  }
+}

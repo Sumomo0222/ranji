@@ -1,0 +1,25 @@
+# 依赖与构建产物
+node_modules/
+docs/
+
+# 开发过程中的临时文件
+.scratch/
+.shots/
+.DS_Store
+*.log
+
+# 识别引擎的大文件：不进 git，运行 node tools/fetch-engines.mjs 重新生成
+static/vendor/
+static/models/mobileclip/vision_model_fp16.onnx
+
+# 工具链各自的依赖、缓存与测试图片
+tools/*/node_modules/
+tools/clip/cache/
+tools/clip/test-images/
+tools/clip/harness/out/
+tools/ocr/.cache/
+tools/ocr/harness/out/
+tools/ocr/samples/*.png
+# 评测过程的中间产物（体较大，可由脚本重新生成）
+tools/clip/out/
+*.tmp.json

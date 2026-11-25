@@ -1,0 +1,5 @@
+# Local-only toolchain state (never commit).
+node_modules/
+.cache/
+*.log
+.DS_Store
