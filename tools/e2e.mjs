@@ -1,5 +1,6 @@
 // 端到端测试：在模拟手机的无头 Chrome 里走一遍真实流程。
-//   node tools/e2e.mjs [--only=名称片段] [--headed]
+//   node tools/e2e.mjs [--only=名称片段] [--headed] [--live]
+//   --live：不启动本地服务器，直接对线上地址跑（识别引擎会从线上下载）
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -13,7 +14,8 @@ const SHOTS = path.join(ROOT, '.shots/e2e');
 const opt = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, '').split('=')));
 fs.mkdirSync(SHOTS, { recursive: true });
 
-const server = await startServer(path.join(ROOT, 'docs'));
+const LIVE = 'live' in opt;
+const server = LIVE ? { url: 'https://sumomo0222.github.io/ranji/', requests: [], close: async () => {} } : await startServer(path.join(ROOT, 'docs'));
 const browser = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: !('headed' in opt) });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, locale: 'zh-CN', timezoneId: 'Asia/Shanghai', acceptDownloads: true });
 const page = await ctx.newPage();
@@ -29,13 +31,18 @@ page.on('pageerror', (e) => pageErrors.push(`pageerror: ${e.message}`));
 page.on('console', (m) => {
   if (m.type() !== 'error') return;
   const t = m.text();
-  // 本地服务器对子路径外的 /favicon.ico 返回 403，线上不存在这个问题
-  if (/403|favicon/.test(t)) return;
+  // 资源加载失败由上面的 response 监听以精确的 URL 报告，这里不再按文字匹配
+  if (/favicon/.test(t)) return;
   // Tesseract 的整型语言包会报一批无害的参数告警
   if (/^(Warning: Parameter not found|Estimating resolution as)/.test(t)) return;
   pageErrors.push(`console.error: ${t}`);
 });
 page.on('requestfailed', (r) => pageErrors.push(`requestfailed: ${r.url()} ${r.failure()?.errorText}`));
+// 任何 4xx / 5xx 响应都算失败（只放过浏览器自己去要的 /favicon.ico）
+page.on('response', (r) => {
+  if (r.status() < 400 || new URL(r.url()).pathname === '/favicon.ico') return;
+  pageErrors.push(`HTTP ${r.status()} ${r.url()}`);
+});
 
 const results = [];
 let failed = 0;
@@ -88,7 +95,8 @@ async function chooseFile(clickSelector, file) {
 
 const sum = (s, type) => s.entries.filter((e) => e.type === type && e.date === today).reduce((a, e) => a + e.kcal, 0);
 
-await page.goto(server.url + '?demo=1', { waitUntil: 'load' });
+page.setDefaultTimeout(LIVE ? 60000 : 30000);
+await page.goto(server.url + '?demo=1', { waitUntil: 'load', timeout: 90000 });
 await page.waitForSelector('.checkin', { timeout: 10000 });
 
 await step('首页：示例数据渲染', async () => {
